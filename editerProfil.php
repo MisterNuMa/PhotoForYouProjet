@@ -5,46 +5,47 @@
                 echo '<script>location.href=".";</script>';
             }
 
-            switch($_SESSION['type']) {
-                case "client":       $categorie = "Client"; break;
-                case "photographe":  $categorie = "Photographe"; break;
-                case "admin":        $categorie = "Administrateur"; break;
-            }
-
             if(isset($_POST['submit'])) {
                 $requser = $db->prepare("SELECT * FROM photoforyou.users WHERE idUser= ?");
                 $requser->execute(array($_SESSION['id']));
                 $user = $requser->fetch();
 
-                if(isset($_POST['newprenom']) && !empty($_POST['newprenom']) && $_POST['newprenom'] != $user['prenom']) {
+                if(isset($_POST['newprenom']) && !empty($_POST['newprenom']) && $_POST['newprenom'] != $_SESSION['prenom']) {
                     $newprenom = htmlspecialchars($_POST['newprenom']);
-                    $insertprenom = $db->prepare("UPDATE photoforyou.users SET prenom = ? WHERE idUser = ?");
-                    $insertprenom->execute(array($newprenom, $_SESSION['id']));
+                    $insertprenom = $db->prepare("UPDATE photoforyou.users SET prenom = InitCap(:prenom) WHERE idUser = :idUser");
+                    $insertprenom->bindParam(':prenom', $newprenom, PDO::PARAM_STR);
+                    $insertprenom->bindParam(':idUser', $_SESSION['id'], PDO::PARAM_INT);
+                    $insertprenom->execute();
                     $_SESSION['prenom'] = $newprenom;
                     echo '<script>location.href="voirProfil.php";</script>';
                 }
 
-                if(isset($_POST['newnom']) && !empty($_POST['newnom']) && $_POST['newnom'] != $user['nom']) {
+                if(isset($_POST['newnom']) && !empty($_POST['newnom']) && $_POST['newnom'] != $_SESSION['nom']) {
                     $newnom = htmlspecialchars($_POST['newnom']);
-                    $insertnom = $db->prepare("UPDATE photoforyou.users SET nom = ? WHERE idUser = ?");
-                    $insertnom->execute(array($newnom, $_SESSION['id']));
+                    $insertnom = $db->prepare("UPDATE photoforyou.users SET nom = InitCap(:nom) WHERE idUser = :idUser");
+                    $insertnom->bindParam(':nom', $newnom, PDO::PARAM_STR);
+                    $insertnom->bindParam(':idUser', $_SESSION['id'], PDO::PARAM_INT);
                     $_SESSION['nom'] = $newnom;
                     echo '<script>location.href="voirProfil.php";</script>';
                 }
 
-                if(isset($_POST['newdate']) AND !empty($_POST['newdate']) AND $_POST['newdate'] != $user['dateNaiss']) {
+                if(isset($_POST['newdate']) AND !empty($_POST['newdate']) AND $_POST['newdate'] != $_SESSION['dateNaiss']) {
                     $newdate = htmlspecialchars($_POST['newdate']);
-                    $insertdate = $dbh->prepare("UPDATE photoforyou.users SET dateNaiss = ? WHERE idUser = ?");
-                    $insertdate->execute(array($newdate, $_SESSION['id']));
-                    $_SESSION['date'] = $newdate;
+                    $insertdate = $db->prepare("UPDATE photoforyou.users SET dateNaiss = :date WHERE idUser = :idUser");
+                    $insertdate->bindParam(':date', $newdate, PDO::PARAM_STR);
+                    $insertdate->bindParam(':idUser', $_SESSION['id'], PDO::PARAM_INT);
+                    $insertdate->execute();
+                    $_SESSION['dateNaiss'] = $newdate;
                     echo '<script>location.href="voirProfil.php";</script>';
                 }
 
-                if(isset($_POST['newsite']) AND !empty($_POST['newsite']) AND $_POST['newsite'] != $user['site']) {
+                if(isset($_POST['newsite']) AND !empty($_POST['newsite']) AND $_POST['newsite'] != $_SESSION['siteUser']) {
                     $newsite = htmlspecialchars($_POST['newsite']);
-                    $insertsite = $dbh->prepare("UPDATE photoforyou.users SET siteUser = ? WHERE idUser = ?");
-                    $insertsite->execute(array($newsite, $_SESSION['id']));
-                    $_SESSION['site'] = $newsite;
+                    $insertsite = $db->prepare("UPDATE photoforyou.users SET siteUser = :site WHERE idUser = :idUser");
+                    $insertsite->bindParam(':site', $newsite, PDO::PARAM_STR);
+                    $insertsite->bindParam(':idUser', $_SESSION['id'], PDO::PARAM_INT);
+                    $insertsite->execute();
+                    $_SESSION['siteUser'] = $newsite;
                     echo '<script>location.href="voirProfil.php";</script>';
                 }
             }
@@ -88,7 +89,7 @@
                                     <div class="col-md-6"><label class="labels">Nom</label><?php echo"<input type='text' class='form-control' placeholder='Nom' name='newnom' value='".$_SESSION["nom"]."'>";?></div>
                                 </div><!-- fin div row -->
                                 <div class="row mt-3">
-                                <div class="col-md-12"><label class="labels">Statut</label><?php echo"<input type='text' class='form-control' id='disabledInput' value='".$categorie."' disabled>";?></div>
+                                <div class="col-md-12"><label class="labels">Statut</label><?php echo"<input type='text' class='form-control' id='disabledInput' value='".$_SESSION['type']."' disabled>";?></div>
                                 
                                 <?php
                                     if($_SESSION['type']=="client") {

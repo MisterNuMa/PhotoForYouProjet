@@ -6,10 +6,6 @@
             }
 
             if(isset($_POST['submit'])) {
-                $requser = $db->prepare("SELECT * FROM photoforyou.users WHERE idUser= ?");
-                $requser->execute(array($_SESSION['id']));
-                $user = $requser->fetch();
-
                 if(isset($_POST['newprenom']) && !empty($_POST['newprenom']) && $_POST['newprenom'] != $_SESSION['prenom']) {
                     $newprenom = htmlspecialchars($_POST['newprenom']);
                     $insertprenom = $db->prepare("UPDATE photoforyou.users SET prenom = InitCap(:prenom) WHERE idUser = :idUser");
